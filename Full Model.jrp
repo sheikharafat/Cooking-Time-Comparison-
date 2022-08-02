@@ -1,0 +1,113 @@
+﻿New Table( "Data",
+	Add Rows( 16 ),
+	New Script(
+		"Source",
+		Open(
+			"/E:/Miami/Spring_22/STA 566/Project/Data.csv",
+			columns(
+				New Column( "Run", Numeric, "Continuous", Format( "Best", 12 ) ),
+				New Column( "Temperature",
+					Numeric,
+					"Continuous",
+					Format( "Best", 12 )
+				),
+				New Column( "Water", Numeric, "Continuous", Format( "Best", 12 ) ),
+				New Column( "Oil", Numeric, "Continuous", Format( "Best", 12 ) ),
+				New Column( "Cooking_Time",
+					Numeric,
+					"Continuous",
+					Format( "Best", 12 )
+				)
+			),
+			Import Settings(
+				End Of Line( CRLF, CR, LF ),
+				End Of Field( Comma, CSV( 1 ) ),
+				Strip Quotes( 0 ),
+				Use Apostrophe as Quotation Mark( 0 ),
+				Use Regional Settings( 0 ),
+				Scan Whole File( 1 ),
+				Treat empty columns as numeric( 0 ),
+				CompressNumericColumns( 0 ),
+				CompressCharacterColumns( 0 ),
+				CompressAllowListCheck( 0 ),
+				Labels( 1 ),
+				Column Names Start( 1 ),
+				Data Starts( 2 ),
+				Lines To Read( "All" ),
+				Year Rule( "20xx" )
+			)
+		)
+	),
+	New Column( "Run",
+		Numeric,
+		"Continuous",
+		Format( "Best", 12 ),
+		Set Values( [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] )
+	),
+	New Column( "Temperature",
+		Numeric,
+		"Continuous",
+		Format( "Best", 12 ),
+		Set Values(
+			[20, 20, 45, 45, 20, 20, 45, 45, 20, 20, 45, 45, 20, 20, 45, 45]
+		)
+	),
+	New Column( "Water",
+		Numeric,
+		"Continuous",
+		Format( "Best", 12 ),
+		Set Values(
+			[960, 960, 960, 960, 1120, 1120, 1120, 1120, 960, 960, 960, 960, 1120,
+			1120, 1120, 1120]
+		)
+	),
+	New Column( "Oil",
+		Numeric,
+		"Continuous",
+		Format( "Best", 12 ),
+		Set Values( [0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0, 15] )
+	),
+	New Column( "Cooking_Time",
+		Numeric,
+		"Continuous",
+		Format( "Best", 12 ),
+		Set Values(
+			[1474, 1450, 1218, 1251, 1526, 1478, 1426, 1387, 1482, 1431, 1242, 1269,
+			1583, 1461, 1450, 1401]
+		)
+	)
+) << Run Formulas;
+Fit Model(
+	Y( :Cooking_Time ),
+	Effects(
+		:Temperature, :Water, :Temperature * :Water, :Oil, :Temperature * :Oil,
+		:Water * :Oil, :Temperature * :Water * :Oil
+	),
+	Personality( "Standard Least Squares" ),
+	Emphasis( "Effect Screening" ),
+	Run(
+		Profiler(
+			1,
+			Confidence Intervals( 1 ),
+			Term Value(
+				Temperature( 32.5, Lock( 0 ), Show( 1 ) ),
+				Water( 1040, Lock( 0 ), Show( 1 ) ),
+				Oil( 7.5, Lock( 0 ), Show( 1 ) )
+			)
+		),
+		:Cooking_Time << {Summary of Fit( 0 ), Analysis of Variance( 0 ),
+		Parameter Estimates( 1 ), Effect Details( 0 ), Lack of Fit( 0 ),
+		Normal Plot( 1 ), Sorted Estimates( 0 ), Plot Actual by Predicted( 1 ),
+		Plot Regression( 0 ), Plot Residual by Predicted( 1 ),
+		Plot Studentized Residuals( 1 ), Plot Effect Leverage( 0 ),
+		Plot Residual by Normal Quantiles( 0 ), Box Cox Y Transformation( 0 )}
+	),
+	SendToReport(
+		Dispatch(
+			{"Response Cooking_Time"},
+			"Parameter Estimates",
+			OutlineBox,
+			{Close( 0 )}
+		)
+	)
+);
